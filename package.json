@@ -61,6 +61,7 @@
     "eslint": "^4.12.1",
     "eslint-config-satya164": "^1.0.1",
     "eslint-plugin-react-native-globals": "^0.1.0",
+    "husky": "^1.1.2",
     "jest": "^22.1.3",
     "jest-expo": "^30.0.0",
     "prettier": "^1.8.2",
@@ -94,7 +95,9 @@
     "globals": {
       "ts-jest": {
         "diagnostics": {
-          "ignoreCodes": [151001]
+          "ignoreCodes": [
+            151001
+          ]
         }
       }
     }
