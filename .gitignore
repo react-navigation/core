@@ -55,3 +55,6 @@ dist/
 # TypeScript-generated files
 *.d.ts
 !src/react-navigation.d.ts
+
+# Code coverage files
+coverage/
