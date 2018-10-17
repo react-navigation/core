@@ -89,15 +89,19 @@
     "coveragePathIgnorePatterns": [
       "jest-setup.js"
     ],
-    "modulePathIgnorePatterns": [
-      "<rootDir>/example/"
-    ],
     "transform": {
-      "^.+\\.tsx?$": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+      "^.+\\.tsx?$": "ts-jest"
     },
     "transformIgnorePatterns": [
       "node_modules/(?!(jest-)?react-native|react-clone-referenced-element)"
-    ]
+    ],
+    "globals": {
+      "ts-jest": {
+        "diagnostics": {
+          "ignoreCodes": [151001]
+        }
+      }
+    }
   },
   "prettier": {
     "trailingComma": "es5",
