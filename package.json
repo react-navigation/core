@@ -80,7 +80,7 @@
   },
   "jest": {
     "preset": "react-native",
-    "testRegex": "/__tests__/[^/]+-test\\.[jt]sx?$",
+    "testRegex": "/__tests__/[^/]+-test\\.(js|tsx)?$",
     "setupFiles": [
       "<rootDir>/jest-setup.js"
     ],
