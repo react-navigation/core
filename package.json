@@ -1,6 +1,6 @@
 {
   "name": "@react-navigation/core",
-  "version": "3.0.0-alpha.7",
+  "version": "3.0.0-alpha.10",
   "description": "Core utilities for the react-navigation framework",
   "main": "dist/index.js",
   "files": [
@@ -15,7 +15,7 @@
     "test": "jest",
     "lint": "eslint .",
     "format": "eslint . --fix",
-    "babel": "babel --no-babelrc --plugins=transform-react-jsx,transform-class-properties,transform-object-rest-spread,transform-flow-strip-types src --copy-files --out-dir dist --ignore '**/__tests__/**'",
+    "babel": "babel --no-babelrc --plugins=transform-es2015-block-scoping,transform-es2015-modules-commonjs,transform-react-jsx,transform-class-properties,transform-object-rest-spread,transform-flow-strip-types src --copy-files --out-dir dist --ignore '**/__tests__/**'",
     "tsc": "tsc",
     "build": "yarn babel && yarn tsc",
     "prepare": "yarn build",
@@ -46,12 +46,15 @@
     "hoist-non-react-statics": "^3.0.1",
     "path-to-regexp": "^1.7.0",
     "query-string": "^6.2.0",
+    "react-is": "^16.5.2",
     "react-lifecycles-compat": "^3.0.4"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
     "babel-jest": "^22.4.1",
     "babel-plugin-transform-class-properties": "^6.13.0",
+    "babel-plugin-transform-es2015-block-scoping": "^6.26.0",
+    "babel-plugin-transform-es2015-modules-commonjs": "^6.26.2",
     "babel-plugin-transform-flow-strip-types": "^6.22.0",
     "babel-plugin-transform-object-rest-spread": "^6.13.0",
     "babel-plugin-transform-react-jsx": "^6.18.0",
