@@ -9,6 +9,7 @@ import {
 import { ListSection, Divider } from 'react-native-paper';
 
 import SimpleStack from './src/SimpleStack';
+import SimpleTabs from './src/SimpleTabs';
 
 // Comment the following two lines to stop using react-native-screens
 import { useScreens } from 'react-native-screens';
@@ -19,7 +20,8 @@ I18nManager.forceRTL(false);
 // useScreens();
 
 const data = [
-  { component: SimpleStack, title: 'Simple', routeName: 'SimpleStack' },
+  { component: SimpleStack, title: 'Simple Stack', routeName: 'SimpleStack' },
+  { component: SimpleTabs, title: 'Simple Tabs', routeName: 'SimpleTabs' },
 ];
 
 // Cache images
