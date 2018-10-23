@@ -30,16 +30,6 @@ class Home extends React.Component {
     title: 'Examples',
   };
 
-  componentDidMount() {
-    // this.props.navigation.addListener('refocus', payload => {
-    //   console.log({ payload });
-    // })
-
-    // setTimeout(() => {
-    //   this.props.navigation.emit('refocus', {lol: true});
-    // }, 1000)
-  }
-
   _renderItem = ({ item }) => (
     <ListSection.Item
       title={item.title}
@@ -86,4 +76,5 @@ const Root = createStackNavigator(
 );
 
 const App = createAppContainer(Root);
+export default App;
 Expo.registerRootComponent(App);

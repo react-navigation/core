@@ -54,7 +54,7 @@ class LoremScreen extends React.Component {
         }}
       >
         {this.props.navigation
-          .getParam('text', LOREM_PAGE_ONE)
+          .getParam('text')
           .split('\n')
           .map((p, i) => (
             <Text
