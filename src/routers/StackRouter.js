@@ -84,7 +84,8 @@ export default (routeConfigs, stackConfig = {}) => {
         })
       );
     }
-    const params = (route.params || action.params || initialRouteParams) && {
+    const params = (routeConfigs[initialRouteName].params || route.params || action.params || initialRouteParams) && {
+      ...(routeConfigs[initialRouteName].params || {}),
       ...(route.params || {}),
       ...(action.params || {}),
       ...(initialRouteParams || {}),
@@ -102,6 +103,15 @@ export default (routeConfigs, stackConfig = {}) => {
       index: 0,
       routes: [route],
     };
+  }
+
+  function getParamsForRouteAndAction(routeName, action) {
+    let routeConfig = routeConfigs[routeName];
+    if (routeConfig && routeConfig.params) {
+      return { ...routeConfig.params, ...action.params };
+    } else {
+      return action.params;
+    }
   }
 
   const {
