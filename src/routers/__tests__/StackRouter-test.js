@@ -1307,7 +1307,7 @@ describe('StackRouter', () => {
       {
         Foo: {
           screen: FooScreen,
-          params: { foo: 'not-bar', meaning: 42 }
+          params: { foo: 'not-bar', meaning: 42 },
         },
       },
       { initialRouteName: 'Foo', initialRouteParams: { foo: 'bar' } }

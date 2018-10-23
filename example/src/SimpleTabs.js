@@ -6,7 +6,7 @@ import { Feather } from '@expo/vector-icons';
 class Screen extends React.Component {
   static navigationOptions = ({ navigation }) => ({
     tabBarLabel: navigation.getParam('title'),
-    tabBarIcon: ({ focused, tintColor }) => (
+    tabBarIcon: ({ tintColor }) => (
       <Feather size={25} name={navigation.getParam('icon')} color={tintColor} />
     ),
   });

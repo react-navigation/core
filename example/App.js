@@ -2,6 +2,7 @@ import React from 'react';
 import Expo from 'expo';
 import { FlatList, I18nManager } from 'react-native';
 import { createAppContainer } from '@react-navigation/native';
+
 import {
   Assets as StackAssets,
   createStackNavigator,
@@ -11,13 +12,13 @@ import { ListSection, Divider } from 'react-native-paper';
 import SimpleStack from './src/SimpleStack';
 import SimpleTabs from './src/SimpleTabs';
 
-// Comment the following two lines to stop using react-native-screens
-import { useScreens } from 'react-native-screens';
+// Comment/uncomment the following two lines to toggle react-native-screens
+// import { useScreens } from 'react-native-screens';
+// useScreens();
 
 // Uncomment the following line to force RTL. Requires closing and re-opening
 // your app after you first load it with this option enabled.
 I18nManager.forceRTL(false);
-// useScreens();
 
 const data = [
   { component: SimpleStack, title: 'Simple Stack', routeName: 'SimpleStack' },
