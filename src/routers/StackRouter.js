@@ -435,7 +435,7 @@ export default (routeConfigs, stackConfig = {}) => {
           }
           const routes = [...state.routes];
           routes[routeIndex] = {
-            params: getParamsForRouteAndAction(action.routeName, action.params),
+            params: getParamsForRouteAndAction(action.routeName, action),
             // merge the child state in this order to allow params override
             ...childState,
             routeName: action.routeName,
