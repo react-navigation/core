@@ -4,18 +4,13 @@
  * Based on the 'action' events that get fired for this navigation state, this utility will fire
  * focus and blur events for this child
  */
-export default function getChildEventSubscriber(
-  addListener: (
-    eventName: string,
-    eventHandler: EventHandler
-  ) => { remove: () => void },
-  key: string
-) {
-  const actionSubscribers = new Set<EventHandler>();
-  const willFocusSubscribers = new Set<EventHandler>();
-  const didFocusSubscribers = new Set<EventHandler>();
-  const willBlurSubscribers = new Set<EventHandler>();
-  const didBlurSubscribers = new Set<EventHandler>();
+export default function getChildEventSubscriber(addListener, key) {
+  const actionSubscribers = new Set();
+  const willFocusSubscribers = new Set();
+  const didFocusSubscribers = new Set();
+  const willBlurSubscribers = new Set();
+  const didBlurSubscribers = new Set();
+  const refocusSubscribers = new Set();
 
   const removeAll = () => {
     [
@@ -24,12 +19,13 @@ export default function getChildEventSubscriber(
       didFocusSubscribers,
       willBlurSubscribers,
       didBlurSubscribers,
+      refocusSubscribers,
     ].forEach(set => set.clear());
 
     upstreamSubscribers.forEach(subs => subs && subs.remove());
   };
 
-  const getChildSubscribers = (evtName: string) => {
+  const getChildSubscribers = evtName => {
     switch (evtName) {
       case 'action':
         return actionSubscribers;
@@ -41,19 +37,20 @@ export default function getChildEventSubscriber(
         return willBlurSubscribers;
       case 'didBlur':
         return didBlurSubscribers;
+      case 'refocus':
+        return refocusSubscribers;
       default:
         return null;
     }
   };
 
-  const emit = (type: string, payload: IPayload) => {
+  const emit = (type, payload) => {
     const payloadWithType = { ...payload, type };
     const subscribers = getChildSubscribers(type);
-    if (subscribers) {
+    subscribers &&
       subscribers.forEach(subs => {
         subs(payloadWithType);
       });
-    }
   };
 
   // lastEmittedEvent keeps track of focus state for one route. First we assume
@@ -67,11 +64,16 @@ export default function getChildEventSubscriber(
     'didFocus',
     'willBlur',
     'didBlur',
+    'refocus',
     'action',
   ];
 
-  const upstreamSubscribers = upstreamEvents.map((eventName: string) =>
+  const upstreamSubscribers = upstreamEvents.map(eventName =>
     addListener(eventName, payload => {
+      if (eventName === 'refocus') {
+        emit(eventName, payload);
+        return;
+      }
 
       const { state, lastState, action } = payload;
       const lastRoutes = lastState && lastState.routes;
@@ -85,7 +87,7 @@ export default function getChildEventSubscriber(
       const lastRoute =
         lastRoutes && lastRoutes.find(route => route.key === key);
       const newRoute = routes && routes.find(route => route.key === key);
-      const childPayload: IPayload = {
+      const childPayload = {
         context: `${key}:${action.type}_${payload.context || 'Root'}`,
         state: newRoute,
         lastState: lastRoute,
@@ -154,7 +156,7 @@ export default function getChildEventSubscriber(
   );
 
   return {
-    addListener(eventName: string, eventHandler: EventHandler) {
+    addListener(eventName, eventHandler) {
       const subscribers = getChildSubscribers(eventName);
       if (!subscribers) {
         throw new Error(`Invalid event name "${eventName}"`);
@@ -165,7 +167,7 @@ export default function getChildEventSubscriber(
       };
       return { remove };
     },
-    emit(eventName: string, payload: any) {
+    emit(eventName, payload) {
       if (eventName !== 'refocus') {
         console.error(
           `navigation.emit only supports the 'refocus' event currently.`
@@ -175,22 +177,4 @@ export default function getChildEventSubscriber(
       emit(eventName, payload);
     },
   };
-}
-
-export type EventHandler = (payload: IPayload) => void;
-
-export interface IPayload {
-  action: { type: string };
-  context?: string;
-  lastState: IRoute;
-  state: IRoute;
-  type: string;
-}
-
-export interface IRoute {
-  index: number;
-  isTransitioning: boolean;
-  key?: string;
-  routeName?: string;
-  routes: any[];
 }
