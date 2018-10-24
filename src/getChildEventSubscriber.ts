@@ -72,6 +72,11 @@ export default function getChildEventSubscriber(
 
   const upstreamSubscribers = upstreamEvents.map((eventName: string) =>
     addListener(eventName, payload => {
+      if (eventName === 'refocus') {
+        emit(eventName, payload);
+        return;
+      }
+
       const { state, lastState, action } = payload;
       const lastRoutes = lastState && lastState.routes;
       const routes = state && state.routes;

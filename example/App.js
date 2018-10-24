@@ -11,7 +11,7 @@ import { ListSection, Divider } from 'react-native-paper';
 import SimpleStack from './src/SimpleStack';
 
 // Comment the following two lines to stop using react-native-screens
-import { useScreens } from 'react-native-screens';
+// import { useScreens } from 'react-native-screens';
 
 // Uncomment the following line to force RTL. Requires closing and re-opening
 // your app after you first load it with this option enabled.
@@ -34,7 +34,6 @@ class Home extends React.Component {
     // this.props.navigation.addListener('refocus', payload => {
     //   console.log({ payload });
     // })
-
     // setTimeout(() => {
     //   this.props.navigation.emit('refocus', {lol: true});
     // }, 1000)

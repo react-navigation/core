@@ -92,6 +92,9 @@
     "transform": {
       "^.+\\.tsx?$": "ts-jest"
     },
+    "modulePathIgnorePatterns": [
+      "<rootDir>/example/"
+    ],
     "globals": {
       "ts-jest": {
         "tsConfig": "./tsconfig.test.json",

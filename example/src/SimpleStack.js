@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  Dimensions,
+  // Dimensions,
   Button,
   ScrollView,
   TouchableOpacity,
@@ -8,7 +8,7 @@ import {
   Text,
 } from 'react-native';
 import { MaterialIcons } from 'react-native-vector-icons';
-import { withNavigation } from '@react-navigation/core';
+// import { withNavigation } from '@react-navigation/core';
 import { createStackNavigator } from 'react-navigation-stack';
 
 const LOREM_PAGE_ONE = `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse in lacus malesuada tellus bibendum fringilla. Integer suscipit suscipit erat, sed molestie eros. Nullam fermentum odio vel mauris pulvinar accumsan. Duis blandit id nulla ac euismod. Nunc nec convallis mauris. Proin sit amet malesuada orci. Aliquam blandit mattis nisi ut eleifend. Morbi blandit ante neque, eu tincidunt est interdum in. Mauris pellentesque euismod nulla. Mauris posuere egestas nulla, sit amet eleifend quam egestas at. Maecenas odio erat, auctor eu consectetur eu, vulputate nec arcu. Praesent in felis massa. Nunc fermentum, massa vitae ultricies dictum, est mi posuere eros, sit amet posuere mi ante ac nulla. Etiam odio libero, tempor sit amet sagittis sed, fermentum ac lorem. Donec dignissim fermentum velit, ac ultrices nulla tristique vel.
