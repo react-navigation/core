@@ -5,7 +5,7 @@
   "plugins": [
     ["module-resolver", {
       "alias": {
-        "@react-navigation/core": "../src"
+        "@react-navigation/core": "../dist"
       }
     }]
   ]
