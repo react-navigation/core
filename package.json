@@ -15,7 +15,7 @@
     "test": "jest",
     "lint": "eslint .",
     "format": "eslint . --fix",
-    "babel": "babel --no-babelrc --plugins=transform-es2015-block-scoping,transform-es2015-modules-commonjs,transform-react-jsx,transform-class-properties,transform-object-rest-spread,transform-flow-strip-types src --copy-files --out-dir dist --ignore '**/__tests__/**'",
+    "babel": "babel --no-babelrc --plugins=transform-es2015-block-scoping,transform-es2015-modules-commonjs,transform-react-jsx,transform-class-properties,transform-object-rest-spread,transform-flow-strip-types src --copy-files --out-dir dist --ignore '**/__tests__/**','*.ts'",
     "tsc": "tsc",
     "build": "yarn babel && yarn tsc",
     "prepare": "yarn build",
@@ -92,6 +92,7 @@
     "transform": {
       "^.+\\.tsx?$": "ts-jest"
     },
+    "moduleFileExtensions": ["ts","js"],
     "modulePathIgnorePatterns": [
       "<rootDir>/example/"
     ],
