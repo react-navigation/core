@@ -94,6 +94,70 @@ describe('SwitchRouter', () => {
     expect(activeGrandChildRoute.routeName).toEqual('B2');
   });
 
+  test('explicit param mode guards against conflicting param names', () => {
+    const PlainScreen = () => <div />;
+    const SwitchA = () => <div />;
+
+    SwitchA.router = SwitchRouter({
+      A1: {
+        screen: PlainScreen,
+        path: 'a1/:name',
+      },
+      A2: PlainScreen,
+    });
+
+    expect(() => {
+      SwitchRouter(
+        {
+          A: {
+            screen: SwitchA,
+            path: 'a/:name',
+          },
+          B: PlainScreen,
+        },
+        {
+          explicitParams: true,
+        }
+      );
+    }).toThrow();
+  });
+
+  test('explicit param mode on deep conflicting param names', () => {
+    const PlainScreen = () => <div />;
+    const SwitchA = () => <div />;
+    const SwitchFoo = () => <div />;
+
+    SwitchFoo.router = SwitchRouter({
+      A1: {
+        screen: PlainScreen,
+        path: 'a1/:name',
+      },
+      A2: PlainScreen,
+    });
+
+    SwitchA.router = SwitchRouter({
+      Foo: {
+        screen: SwitchFoo,
+      },
+      Bar: PlainScreen,
+    });
+
+    expect(() => {
+      SwitchRouter(
+        {
+          A: {
+            screen: SwitchA,
+            path: 'a/:name',
+          },
+          B: PlainScreen,
+        },
+        {
+          explicitParams: true,
+        }
+      );
+    }).toThrow();
+  });
+
   test('handles nested actions and params simultaneously', () => {
     const router = getExampleRouter();
     const state = router.getStateForAction({ type: NavigationActions.INIT });

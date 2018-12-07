@@ -6,6 +6,19 @@ import invariant from '../utils/invariant';
 
 const queryString = require('query-string');
 
+function intersect(a, b) {
+  if (!a || !b) {
+    return new Set();
+  }
+  const intersecting = new Set();
+  a.forEach(v => {
+    if (b.has(v)) {
+      intersecting.add(v);
+    }
+  });
+  return intersecting;
+}
+
 export const getParamsFromPath = (inputParams, pathMatch, pathMatchKeys) => {
   const params = pathMatch.slice(1).reduce(
     // iterate over matched path params
@@ -64,7 +77,7 @@ export const urlToPathAndParams = (url, uriPrefix) => {
 export const createPathParser = (
   childRouters,
   routeConfigs,
-  { paths: pathConfigs = {}, disableRouteNamePaths }
+  { paths: pathConfigs = {}, disableRouteNamePaths, explicitParams = false }
 ) => {
   const pathsByRouteNames = {};
   let paths = [];
@@ -112,6 +125,69 @@ export const createPathParser = (
       isWildcard,
       toPath: pathPattern === null ? () => '' : compile(pathPattern),
     };
+  });
+
+  const localRouteNamedParams = {};
+
+  Object.keys(routeConfigs).forEach(routeName => {
+    const routeConfig = routeConfigs[routeName];
+    const namedDefaultParams = routeConfig.params
+      ? Object.keys(routeConfig.params)
+      : [];
+
+    function getNamed(pathMatches) {
+      return pathMatches
+        .map(p => {
+          const name = p.name;
+          if (name !== 0) {
+            return name;
+          }
+          return null;
+        })
+        .filter(n => !!n);
+    }
+    const pathConfig = pathsByRouteNames[routeName];
+
+    const namedParams = new Set([
+      ...namedDefaultParams,
+      ...getNamed(pathConfig.extendedPathReKeys),
+    ]);
+
+    localRouteNamedParams[routeName] = namedParams;
+  });
+
+  const routeNamedParams = { ...localRouteNamedParams };
+
+  Object.keys(childRouters).forEach(routeName => {
+    const childRouter = childRouters[routeName];
+    const childRouteNamedParams = childRouter
+      ? childRouter.routeNamedParams || {}
+      : {};
+    const allChildParamNames = new Set();
+    Object.keys(childRouteNamedParams).forEach(childRouteName => {
+      childRouteNamedParams[childRouteName].forEach(a =>
+        allChildParamNames.add(a)
+      );
+    });
+
+    routeNamedParams[routeName] = new Set([
+      ...localRouteNamedParams[routeName],
+      ...allChildParamNames,
+    ]);
+
+    const conflictingParamNames = intersect(
+      allChildParamNames,
+      localRouteNamedParams[routeName]
+    );
+    if (conflictingParamNames.size && explicitParams) {
+      throw new Error(
+        `Conflicting param names for "${routeName}" route. Rename the ${Array.from(
+          conflictingParamNames
+        )
+          .map(n => `"${n}"`)
+          .join(',')} param(s)`
+      );
+    }
   });
 
   paths = Object.entries(pathsByRouteNames);
@@ -207,5 +283,9 @@ export const createPathParser = (
       params: nonPathParams,
     };
   };
-  return { getActionForPathAndParams, getPathAndParamsForRoute };
+  return {
+    getActionForPathAndParams,
+    getPathAndParamsForRoute,
+    routeNamedParams,
+  };
 };

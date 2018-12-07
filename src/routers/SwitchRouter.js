@@ -55,6 +55,7 @@ export default (routeConfigs, config = {}) => {
   const {
     getPathAndParamsForRoute,
     getActionForPathAndParams,
+    routeNamedParams,
   } = createPathParser(childRouters, routeConfigs, config);
 
   if (initialRouteIndex === -1) {
@@ -120,6 +121,8 @@ export default (routeConfigs, config = {}) => {
   }
 
   return {
+    routeNamedParams,
+
     childRouters,
 
     getActionCreators(route, stateKey) {

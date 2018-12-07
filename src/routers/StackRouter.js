@@ -121,10 +121,12 @@ export default (routeConfigs, stackConfig = {}) => {
   const {
     getPathAndParamsForRoute,
     getActionForPathAndParams,
+    routeNamedParams,
   } = createPathParser(childRouters, routeConfigs, stackConfig);
 
   return {
     childRouters,
+    routeNamedParams,
 
     getComponentForState(state) {
       const activeChildRoute = state.routes[state.index];
