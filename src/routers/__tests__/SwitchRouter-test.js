@@ -122,6 +122,50 @@ describe('SwitchRouter', () => {
     }).toThrow();
   });
 
+  test('explicit param mode parses path/params correctly', () => {
+    const PlainScreen = () => <div />;
+    const SwitchA = () => <div />;
+
+    SwitchA.router = SwitchRouter({
+      A1: {
+        screen: PlainScreen,
+        path: 'a1/:name',
+        params: { baz: 'boo' },
+      },
+      A2: PlainScreen,
+    });
+
+    const router = SwitchRouter(
+      {
+        A: {
+          screen: SwitchA,
+          path: 'a/:foo',
+          params: { bar: null },
+        },
+        B: PlainScreen,
+      },
+      {
+        explicitParams: true,
+      }
+    );
+
+    const action = router.getActionForPathAndParams('a/foovalue/a1/namevalue', {
+      bar: 'a',
+      baz: 'b',
+      something: 'c',
+    });
+    expect(action).toEqual({
+      type: NavigationActions.NAVIGATE,
+      routeName: 'A',
+      params: { foo: 'foovalue', bar: 'a' },
+      action: {
+        type: NavigationActions.NAVIGATE,
+        routeName: 'A1',
+        params: { name: 'namevalue', baz: 'b' },
+      },
+    });
+  });
+
   test('explicit param mode on deep conflicting param names', () => {
     const PlainScreen = () => <div />;
     const SwitchA = () => <div />;

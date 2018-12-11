@@ -393,8 +393,8 @@ export default (routeConfigs, config = {}) => {
       return getPathAndParamsForRoute(route);
     },
 
-    getActionForPathAndParams(path, params) {
-      return getActionForPathAndParams(path, params);
+    getActionForPathAndParams(path, params, config) {
+      return getActionForPathAndParams(path, params, config);
     },
 
     getScreenOptions: createConfigGetter(

@@ -19,7 +19,19 @@ function intersect(a, b) {
   return intersecting;
 }
 
-export const getParamsFromPath = (inputParams, pathMatch, pathMatchKeys) => {
+export const getParamsFromPath = (
+  inputParams,
+  pathMatch,
+  pathMatchKeys,
+  allowedParams
+) => {
+  let allowedInputParams = inputParams;
+  if (allowedParams) {
+    allowedInputParams = {};
+    allowedParams.forEach(paramName => {
+      allowedInputParams[paramName] = inputParams[paramName];
+    });
+  }
   const params = pathMatch.slice(1).reduce(
     // iterate over matched path params
     (paramsOut, matchResult, i) => {
@@ -43,7 +55,7 @@ export const getParamsFromPath = (inputParams, pathMatch, pathMatchKeys) => {
     },
     {
       // start with the input(query string) params, which will get overridden by path params
-      ...inputParams,
+      ...allowedInputParams,
     }
   );
   return params;
@@ -192,8 +204,14 @@ export const createPathParser = (
 
   paths = Object.entries(pathsByRouteNames);
 
-  const getActionForPathAndParams = (pathToResolve = '', inputParams = {}) => {
+  const getActionForPathAndParams = (
+    pathToResolve = '',
+    inputParams = {},
+    getActionConfig = {}
+  ) => {
     // Attempt to match `pathToResolve` with a route in this router's routeConfigs, deferring to child routers
+
+    const useExplicitParams = explicitParams || getActionConfig.explicitParams;
 
     for (const [routeName, path] of paths) {
       const { exactRe, exactReKeys, extendedPathRe, extendedPathReKeys } = path;
@@ -209,13 +227,24 @@ export const createPathParser = (
           const restOfPath = getRestOfPath(extendedMatch, extendedPathReKeys);
           childAction = childRouter.getActionForPathAndParams(
             restOfPath,
-            inputParams
+            inputParams,
+            {
+              explicitParams: useExplicitParams,
+            }
           );
         }
 
+        const allowedParams =
+          useExplicitParams && localRouteNamedParams[routeName];
+
         return NavigationActions.navigate({
           routeName,
-          params: getParamsFromPath(inputParams, exactMatch, exactReKeys),
+          params: getParamsFromPath(
+            inputParams,
+            exactMatch,
+            exactReKeys,
+            allowedParams
+          ),
           action: childAction,
         });
       }
@@ -234,18 +263,26 @@ export const createPathParser = (
         if (childRouter) {
           childAction = childRouter.getActionForPathAndParams(
             restOfPath,
-            inputParams
+            inputParams,
+            {
+              explicitParams: useExplicitParams,
+              hello: 'a',
+            }
           );
         }
         if (!childAction) {
           continue;
         }
+        const allowedParams =
+          useExplicitParams && localRouteNamedParams[routeName];
+
         return NavigationActions.navigate({
           routeName,
           params: getParamsFromPath(
             inputParams,
             extendedMatch,
-            extendedPathReKeys
+            extendedPathReKeys,
+            allowedParams
           ),
           action: childAction,
         });
