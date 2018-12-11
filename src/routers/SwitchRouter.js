@@ -300,6 +300,26 @@ export default (routeConfigs, config = {}) => {
         const key = action.key;
         const lastRoute = state.routes.find(route => route.key === key);
         if (lastRoute) {
+          if (config.explicitParams) {
+            const blockedParamNames = Object.keys(action.params).filter(
+              paramName => !routeNamedParams[lastRoute.routeName].has(paramName)
+            );
+            if (blockedParamNames.length) {
+              throw new Error(
+                `Cannot set the ${blockedParamNames
+                  .map(n => `"${n}"`)
+                  .join(
+                    ','
+                  )} param(s) of this route because explicit params are enabled. Only the ${Array.from(
+                  routeNamedParams[lastRoute.routeName]
+                )
+                  .map(n => `"${n}"`)
+                  .join(',')} params are allowed for the "${
+                  lastRoute.routeName
+                }" route.`
+              );
+            }
+          }
           const params = {
             ...lastRoute.params,
             ...action.params,

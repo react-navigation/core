@@ -166,6 +166,41 @@ describe('SwitchRouter', () => {
     });
   });
 
+  test('explicit param mode throws error when setting missing params', () => {
+    const PlainScreen = () => <div />;
+    const router = SwitchRouter(
+      {
+        A: {
+          screen: PlainScreen,
+          path: 'a/:foo',
+          params: { bar: 'hello', baz: null },
+        },
+        B: PlainScreen,
+      },
+      {
+        explicitParams: true,
+      }
+    );
+    const initState = router.getStateForAction({});
+    const initRoute = initState.routes[initState.index];
+    expect(initRoute.routeName).toEqual('A');
+    expect(initRoute.params).toEqual({ bar: 'hello', baz: null });
+    const nextState = router.getStateForAction({
+      type: NavigationActions.SET_PARAMS,
+      key: initRoute.key,
+      params: { baz: 'woah', bar: 'bye', foo: 'ok' },
+    });
+    const nextRoute = nextState.routes[nextState.index];
+    expect(nextRoute.params).toEqual({ baz: 'woah', bar: 'bye', foo: 'ok' });
+    expect(() =>
+      router.getStateForAction({
+        type: NavigationActions.SET_PARAMS,
+        key: initRoute.key,
+        params: { badParam: 'not ok' },
+      })
+    ).toThrow();
+  });
+
   test('explicit param mode on deep conflicting param names', () => {
     const PlainScreen = () => <div />;
     const SwitchA = () => <div />;
