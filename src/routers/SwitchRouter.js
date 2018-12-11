@@ -17,6 +17,39 @@ function childrenUpdateWithoutSwitchingIndex(actionType) {
   ].includes(actionType);
 }
 
+function applyInheritedParams(state, routesInheritParams) {
+  if (!state || !state.params || !routesInheritParams) {
+    return state;
+  }
+  const route = state.routes[state.index];
+  let newRouteParams = null;
+  const { routeName } = route;
+  const inheritParams = routesInheritParams[routeName];
+  const routeParams = route.params || {};
+  if (inheritParams) {
+    inheritParams.forEach(paramName => {
+      if (routeParams[paramName] !== state.params[paramName]) {
+        newRouteParams = {
+          ...(newRouteParams || route.params),
+          [paramName]: state.params[paramName],
+        };
+      }
+    });
+  }
+  if (newRouteParams) {
+    const newRoutes = [...state.routes];
+    newRoutes[state.index] = {
+      ...route,
+      params: newRouteParams,
+    };
+    return {
+      ...state,
+      routes: newRoutes,
+    };
+  }
+  return state;
+}
+
 export default (routeConfigs, config = {}) => {
   // Fail fast on invalid route definitions
   validateRouteConfigMap(routeConfigs);
@@ -41,6 +74,12 @@ export default (routeConfigs, config = {}) => {
     if (screen.router) {
       childRouters[routeName] = screen.router;
     }
+  });
+
+  const routesInheritParams = {};
+  Object.keys(routeConfigs).forEach(routeName => {
+    const routeConfig = routeConfigs[routeName];
+    routesInheritParams[routeName] = [...(routeConfig.inheritParams || [])];
   });
 
   function getParamsForRoute(routeName, params) {
@@ -75,12 +114,13 @@ export default (routeConfigs, config = {}) => {
     const childRouter = childRouters[routeName];
     if (childRouter) {
       const childAction = NavigationActions.init();
-      return {
+      let nextState = {
         ...childRouter.getStateForAction(childAction),
         key: routeName,
         routeName,
         params,
       };
+      return applyInheritedParams(nextState, childRouter.routesInheritParams);
     }
     return {
       key: routeName,
@@ -122,6 +162,8 @@ export default (routeConfigs, config = {}) => {
 
   return {
     routeNamedParams,
+
+    routesInheritParams,
 
     childRouters,
 
@@ -201,24 +243,38 @@ export default (routeConfigs, config = {}) => {
           const childRouter = childRouters[action.routeName];
           let newChildState = childState;
 
+          if (action.params) {
+            const updatedParams = newChildState.params
+              ? { ...newChildState.params }
+              : {};
+            Object.keys(action.params).forEach(paramName => {
+              if (
+                !config.explicitParams ||
+                routeNamedParams[newChildState.routeName].has(paramName)
+              ) {
+                updatedParams[paramName] = action.params[paramName];
+              }
+            });
+            newChildState = {
+              ...newChildState,
+              params: updatedParams,
+            };
+          }
+          if (childRouter) {
+            newChildState = applyInheritedParams(
+              newChildState,
+              childRouter.routesInheritParams
+            );
+          }
+
           if (action.action && childRouter) {
             const childStateUpdate = childRouter.getStateForAction(
               action.action,
-              childState
+              newChildState
             );
             if (childStateUpdate) {
               newChildState = childStateUpdate;
             }
-          }
-
-          if (action.params) {
-            newChildState = {
-              ...newChildState,
-              params: {
-                ...(newChildState.params || {}),
-                ...action.params,
-              },
-            };
           }
 
           if (newChildState !== childState) {
