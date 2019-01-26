@@ -48,5 +48,8 @@ export default function withNavigationFocus(Component) {
     }
   }
 
-  return hoistStatics(withNavigation(ComponentWithNavigationFocus), Component);
+  return hoistStatics(
+    withNavigation(ComponentWithNavigationFocus, false),
+    Component
+  );
 }
