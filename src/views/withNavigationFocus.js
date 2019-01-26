@@ -1,6 +1,5 @@
 import React from 'react';
 import hoistStatics from 'hoist-non-react-statics';
-import invariant from '../utils/invariant';
 import withNavigation from './withNavigation';
 
 export default function withNavigationFocus(Component) {
