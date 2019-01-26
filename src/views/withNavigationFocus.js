@@ -43,7 +43,7 @@ export default function withNavigationFocus(Component) {
   }
 
   return hoistStatics(
-    withNavigation(ComponentWithNavigationFocus, false),
+    withNavigation(ComponentWithNavigationFocus, { injectOnRef: false }),
     Component
   );
 }

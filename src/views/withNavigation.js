@@ -3,7 +3,10 @@ import hoistStatics from 'hoist-non-react-statics';
 import invariant from '../utils/invariant';
 import NavigationContext from './NavigationContext';
 
-export default function withNavigation(Component, injectOnRef = true) {
+export default function withNavigation(
+  Component,
+  config = { injectOnRef: true }
+) {
   class ComponentWithNavigation extends React.Component {
     static displayName = `withNavigation(${Component.displayName ||
       Component.name})`;
@@ -22,7 +25,7 @@ export default function withNavigation(Component, injectOnRef = true) {
               <Component
                 {...this.props}
                 navigation={navigation}
-                ref={injectOnRef ? this.props.onRef : undefined}
+                ref={config.injectOnRef ? this.props.onRef : undefined}
               />
             );
           }}
