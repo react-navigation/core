@@ -5,7 +5,7 @@ import NavigationContext from './NavigationContext';
 
 export default function withNavigation(
   Component,
-  config = { injectOnRef: true }
+  config = { forwardRef: true }
 ) {
   class ComponentWithNavigation extends React.Component {
     static displayName = `withNavigation(${Component.displayName ||
@@ -25,7 +25,7 @@ export default function withNavigation(
               <Component
                 {...this.props}
                 navigation={navigation}
-                ref={config.injectOnRef ? this.props.onRef : undefined}
+                ref={config.forwardRef ? this.props.onRef : undefined}
               />
             );
           }}
