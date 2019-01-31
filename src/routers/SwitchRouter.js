@@ -29,11 +29,30 @@ export default (routeConfigs, config = {}) => {
   const initialRouteParams = config.initialRouteParams;
   const initialRouteName = config.initialRouteName || order[0];
   const backBehavior = config.backBehavior || 'none';
-  const shouldBackNavigateToInitialRoute = backBehavior === 'initialRoute';
   const resetOnBlur = config.hasOwnProperty('resetOnBlur')
     ? config.resetOnBlur
     : true;
   const initialRouteIndex = order.indexOf(initialRouteName);
+
+  const routeIndexHistory = [initialRouteIndex];
+  const addRouteIndexHistory = indexToAdd => {
+    // Avoid duplicate indexes in history
+    // See https://github.com/react-navigation/rfcs/blob/master/0001-back-behaviour-for-tabs.md#keep-a-history-of-tabs-and-de-duplicate
+    const existingIndex = routeIndexHistory.indexOf(indexToAdd);
+    if (existingIndex > -1) {
+      routeIndexHistory.splice(existingIndex, 1);
+    }
+    routeIndexHistory.push(indexToAdd);
+  };
+  const popRouteIndexHistory = () => {
+    // We make sure the history minimum length is 1
+    // and it always contains the current route index
+    if (routeIndexHistory.length > 1) {
+      routeIndexHistory.pop();
+    }
+    return routeIndexHistory[routeIndexHistory.length - 1];
+  };
+
   const childRouters = {};
   order.forEach(routeName => {
     childRouters[routeName] = null;
@@ -177,8 +196,16 @@ export default (routeConfigs, config = {}) => {
       const isBackEligible =
         action.key == null || action.key === activeChildLastState.key;
       if (action.type === NavigationActions.BACK) {
-        if (isBackEligible && shouldBackNavigateToInitialRoute) {
-          activeChildIndex = initialRouteIndex;
+        if (isBackEligible && backBehavior !== 'none') {
+          if (backBehavior === 'initialRoute') {
+            activeChildIndex = initialRouteIndex;
+          } else if (backBehavior === 'order') {
+            activeChildIndex = Math.max(0, activeChildIndex - 1);
+          } else if (backBehavior === 'history') {
+            activeChildIndex = popRouteIndexHistory();
+          } else {
+            return state;
+          }
         } else {
           return state;
         }
@@ -189,6 +216,7 @@ export default (routeConfigs, config = {}) => {
         didNavigate = !!order.find((childId, i) => {
           if (childId === action.routeName) {
             activeChildIndex = i;
+            addRouteIndexHistory(activeChildIndex);
             return true;
           }
           return false;

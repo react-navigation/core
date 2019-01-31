@@ -61,7 +61,7 @@ describe('SwitchRouter', () => {
     expect(state3.index).toEqual(1);
   });
 
-  test('handles back if given a backBehavior', () => {
+  test('handles initialRoute backBehavior', () => {
     const router = getExampleRouter({ backBehavior: 'initialRoute' });
     const state = router.getStateForAction({ type: NavigationActions.INIT });
     const state2 = router.getStateForAction(
@@ -76,6 +76,73 @@ describe('SwitchRouter', () => {
     );
 
     expect(state3.index).toEqual(0);
+  });
+
+  test('handles order backBehavior', () => {
+    const routerHelper = new ExampleRouterHelper({ backBehavior: 'order' });
+
+    expect(
+      routerHelper.applyAction({
+        type: NavigationActions.NAVIGATE,
+        routeName: 'C',
+      }).index
+    ).toEqual(2);
+
+    expect(
+      routerHelper.applyAction({ type: NavigationActions.BACK }).index
+    ).toEqual(1);
+
+    expect(
+      routerHelper.applyAction({ type: NavigationActions.BACK }).index
+    ).toEqual(0);
+
+    expect(
+      routerHelper.applyAction({ type: NavigationActions.BACK }).index
+    ).toEqual(0);
+  });
+
+  test('handles history backBehavior', () => {
+    const routerHelper = new ExampleRouterHelper({ backBehavior: 'history' });
+
+    expect(
+      routerHelper.applyAction({
+        type: NavigationActions.NAVIGATE,
+        routeName: 'B',
+      }).index
+    ).toEqual(1);
+
+    expect(
+      routerHelper.applyAction({
+        type: NavigationActions.NAVIGATE,
+        routeName: 'A',
+      }).index
+    ).toEqual(0);
+
+    expect(
+      routerHelper.applyAction({
+        type: NavigationActions.NAVIGATE,
+        routeName: 'C',
+      }).index
+    ).toEqual(2);
+
+    expect(
+      routerHelper.applyAction({
+        type: NavigationActions.NAVIGATE,
+        routeName: 'A',
+      }).index
+    ).toEqual(0);
+
+    expect(
+      routerHelper.applyAction({ type: NavigationActions.BACK }).index
+    ).toEqual(2);
+
+    expect(
+      routerHelper.applyAction({ type: NavigationActions.BACK }).index
+    ).toEqual(1);
+
+    expect(
+      routerHelper.applyAction({ type: NavigationActions.BACK }).index
+    ).toEqual(1);
   });
 
   test('handles nested actions', () => {
@@ -200,10 +267,31 @@ describe('SwitchRouter', () => {
   });
 });
 
+// A simple helper that makes it easier to write basic routing tests
+// As we generally want to apply one action after the other,
+// it's often convenient to manipulate a structure that keeps the router state
+class ExampleRouterHelper {
+  constructor(config) {
+    this._router = getExampleRouter(config);
+    this._currentState = this._router.getStateForAction({
+      type: NavigationActions.INIT,
+    });
+  }
+
+  applyAction = action => {
+    this._currentState = this._router.getStateForAction(
+      action,
+      this._currentState
+    );
+    return this._currentState;
+  };
+}
+
 const getExampleRouter = (config = {}) => {
   const PlainScreen = () => <div />;
   const StackA = () => <div />;
   const StackB = () => <div />;
+  const StackC = () => <div />;
 
   StackA.router = StackRouter({
     A1: PlainScreen,
@@ -215,6 +303,11 @@ const getExampleRouter = (config = {}) => {
     B2: PlainScreen,
   });
 
+  StackC.router = StackRouter({
+    C1: PlainScreen,
+    C2: PlainScreen,
+  });
+
   const router = SwitchRouter(
     {
       A: {
@@ -224,6 +317,10 @@ const getExampleRouter = (config = {}) => {
       B: {
         screen: StackB,
         path: 'great/path',
+      },
+      C: {
+        screen: StackC,
+        path: 'pathC',
       },
     },
     {
