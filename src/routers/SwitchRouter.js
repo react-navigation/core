@@ -32,26 +32,14 @@ export default (routeConfigs, config = {}) => {
   const resetOnBlur = config.hasOwnProperty('resetOnBlur')
     ? config.resetOnBlur
     : true;
-  const initialRouteIndex = order.indexOf(initialRouteName);
 
-  const routeIndexHistory = [initialRouteIndex];
-  const addRouteIndexHistory = indexToAdd => {
-    // Avoid duplicate indexes in history
-    // See https://github.com/react-navigation/rfcs/blob/master/0001-back-behaviour-for-tabs.md#keep-a-history-of-tabs-and-de-duplicate
-    const existingIndex = routeIndexHistory.indexOf(indexToAdd);
-    if (existingIndex > -1) {
-      routeIndexHistory.splice(existingIndex, 1);
-    }
-    routeIndexHistory.push(indexToAdd);
-  };
-  const popRouteIndexHistory = () => {
-    // We make sure the history minimum length is 1
-    // and it always contains the current route index
-    if (routeIndexHistory.length > 1) {
-      routeIndexHistory.pop();
-    }
-    return routeIndexHistory[routeIndexHistory.length - 1];
-  };
+  const initialRouteIndex = order.indexOf(initialRouteName);
+  if (initialRouteIndex === -1) {
+    throw new Error(
+      `Invalid initialRouteName '${initialRouteName}'.` +
+        `Should be one of ${order.map(n => `"${n}"`).join(', ')}`
+    );
+  }
 
   const childRouters = {};
   order.forEach(routeName => {
@@ -75,13 +63,6 @@ export default (routeConfigs, config = {}) => {
     getPathAndParamsForRoute,
     getActionForPathAndParams,
   } = createPathParser(childRouters, routeConfigs, config);
-
-  if (initialRouteIndex === -1) {
-    throw new Error(
-      `Invalid initialRouteName '${initialRouteName}'.` +
-        `Should be one of ${order.map(n => `"${n}"`).join(', ')}`
-    );
-  }
 
   function resetChildRoute(routeName) {
     let initialParams =
@@ -131,11 +112,15 @@ export default (routeConfigs, config = {}) => {
 
   function getInitialState() {
     const routes = order.map(resetChildRoute);
-    return {
+    const initialState = {
       routes,
       index: initialRouteIndex,
       isTransitioning: false,
     };
+    if (backBehavior === 'history') {
+      initialState['routeKeyHistory'] = [routes[initialRouteIndex].routeName];
+    }
+    return initialState;
   }
 
   return {
@@ -201,10 +186,38 @@ export default (routeConfigs, config = {}) => {
         } else if (isBackEligible && backBehavior === 'order') {
           activeChildIndex = Math.max(0, activeChildIndex - 1);
         } else if (isBackEligible && backBehavior === 'history') {
-          activeChildIndex = popRouteIndexHistory();
+          // The history contains current route, so we can only go back
+          // if there is more than one item in the history
+          if (state.routeKeyHistory.length > 1) {
+            const routeKey =
+              state.routeKeyHistory[state.routeKeyHistory.length - 2];
+            activeChildIndex = order.indexOf(routeKey);
+          } else {
+            return state;
+          }
         } else {
           return state;
         }
+      }
+
+      function updateRouteKeyHistory(nextState) {
+        if (backBehavior !== 'history') {
+          return nextState;
+        }
+
+        let nextRouteKeyHistory = [...state.routeKeyHistory];
+        if (action.type === NavigationActions.NAVIGATE) {
+          const keyToAdd = nextState.routes[activeChildIndex].key;
+          nextRouteKeyHistory = nextRouteKeyHistory.filter(k => k !== keyToAdd); // Deduplicate
+          nextRouteKeyHistory.push(keyToAdd);
+        }
+        if (action.type === NavigationActions.BACK) {
+          nextRouteKeyHistory.pop();
+        }
+        return {
+          ...nextState,
+          routeKeyHistory: nextRouteKeyHistory,
+        };
       }
 
       let didNavigate = false;
@@ -212,7 +225,6 @@ export default (routeConfigs, config = {}) => {
         didNavigate = !!order.find((childId, i) => {
           if (childId === action.routeName) {
             activeChildIndex = i;
-            addRouteIndexHistory(activeChildIndex);
             return true;
           }
           return false;
@@ -250,7 +262,7 @@ export default (routeConfigs, config = {}) => {
               routes,
               index: activeChildIndex,
             };
-            return getNextState(prevState, nextState);
+            return updateRouteKeyHistory(getNextState(prevState, nextState));
           } else if (
             newChildState === childState &&
             state.index === activeChildIndex &&
@@ -282,10 +294,12 @@ export default (routeConfigs, config = {}) => {
       }
 
       if (activeChildIndex !== state.index) {
-        return getNextState(prevState, {
-          ...state,
-          index: activeChildIndex,
-        });
+        return updateRouteKeyHistory(
+          getNextState(prevState, {
+            ...state,
+            index: activeChildIndex,
+          })
+        );
       } else if (didNavigate && !inputState) {
         return state;
       } else if (didNavigate) {

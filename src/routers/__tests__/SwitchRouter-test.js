@@ -81,7 +81,7 @@ describe('SwitchRouter', () => {
     expect(state3.index).toEqual(0);
   });
 
-  test.only('handles order backBehavior', () => {
+  test('handles order backBehavior', () => {
     const routerHelper = new ExampleRouterHelper({ backBehavior: 'order' });
     expect(routerHelper.getCurrentState().routeKeyHistory).toBeUndefined();
 
@@ -105,49 +105,49 @@ describe('SwitchRouter', () => {
     ).toMatchObject({ index: 0 });
   });
 
-  test.only('handles history backBehavior', () => {
+  test('handles history backBehavior', () => {
     const routerHelper = new ExampleRouterHelper({ backBehavior: 'history' });
-    expect(routerHelper.getCurrentState().routeKeyHistory).toBeUndefined();
+    expect(routerHelper.getCurrentState().routeKeyHistory).toMatchObject(['A']);
 
     expect(
       routerHelper.applyAction({
         type: NavigationActions.NAVIGATE,
         routeName: 'B',
       })
-    ).toMatchObject({ index: 1 });
+    ).toMatchObject({ index: 1, routeKeyHistory: ['A', 'B'] });
 
     expect(
       routerHelper.applyAction({
         type: NavigationActions.NAVIGATE,
         routeName: 'A',
       })
-    ).toMatchObject({ index: 0 });
+    ).toMatchObject({ index: 0, routeKeyHistory: ['B', 'A'] });
 
     expect(
       routerHelper.applyAction({
         type: NavigationActions.NAVIGATE,
         routeName: 'C',
       })
-    ).toMatchObject({ index: 2 });
+    ).toMatchObject({ index: 2, routeKeyHistory: ['B', 'A', 'C'] });
 
     expect(
       routerHelper.applyAction({
         type: NavigationActions.NAVIGATE,
         routeName: 'A',
       })
-    ).toMatchObject({ index: 0 });
+    ).toMatchObject({ index: 0, routeKeyHistory: ['B', 'C', 'A'] });
 
     expect(
       routerHelper.applyAction({ type: NavigationActions.BACK })
-    ).toMatchObject({ index: 2 });
+    ).toMatchObject({ index: 2, routeKeyHistory: ['B', 'C'] });
 
     expect(
       routerHelper.applyAction({ type: NavigationActions.BACK })
-    ).toMatchObject({ index: 1 });
+    ).toMatchObject({ index: 1, routeKeyHistory: ['B'] });
 
     expect(
       routerHelper.applyAction({ type: NavigationActions.BACK })
-    ).toMatchObject({ index: 1 });
+    ).toMatchObject({ index: 1, routeKeyHistory: ['B'] });
   });
 
   test('handles nested actions', () => {
@@ -288,7 +288,6 @@ class ExampleRouterHelper {
       action,
       this._currentState
     );
-    console.debug('this._currentState', this._currentState);
     return this._currentState;
   };
 
