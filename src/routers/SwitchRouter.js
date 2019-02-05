@@ -196,16 +196,12 @@ export default (routeConfigs, config = {}) => {
       const isBackEligible =
         action.key == null || action.key === activeChildLastState.key;
       if (action.type === NavigationActions.BACK) {
-        if (isBackEligible && backBehavior !== 'none') {
-          if (backBehavior === 'initialRoute') {
-            activeChildIndex = initialRouteIndex;
-          } else if (backBehavior === 'order') {
-            activeChildIndex = Math.max(0, activeChildIndex - 1);
-          } else if (backBehavior === 'history') {
-            activeChildIndex = popRouteIndexHistory();
-          } else {
-            return state;
-          }
+        if (isBackEligible && backBehavior === 'initialRoute') {
+          activeChildIndex = initialRouteIndex;
+        } else if (isBackEligible && backBehavior === 'order') {
+          activeChildIndex = Math.max(0, activeChildIndex - 1);
+        } else if (isBackEligible && backBehavior === 'history') {
+          activeChildIndex = popRouteIndexHistory();
         } else {
           return state;
         }
