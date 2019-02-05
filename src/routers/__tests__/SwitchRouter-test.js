@@ -63,7 +63,10 @@ describe('SwitchRouter', () => {
 
   test('handles initialRoute backBehavior', () => {
     const router = getExampleRouter({ backBehavior: 'initialRoute' });
+
     const state = router.getStateForAction({ type: NavigationActions.INIT });
+    expect(state.routeKeyHistory).toBeUndefined();
+
     const state2 = router.getStateForAction(
       { type: NavigationActions.NAVIGATE, routeName: 'B' },
       state
@@ -78,71 +81,73 @@ describe('SwitchRouter', () => {
     expect(state3.index).toEqual(0);
   });
 
-  test('handles order backBehavior', () => {
+  test.only('handles order backBehavior', () => {
     const routerHelper = new ExampleRouterHelper({ backBehavior: 'order' });
+    expect(routerHelper.getCurrentState().routeKeyHistory).toBeUndefined();
 
     expect(
       routerHelper.applyAction({
         type: NavigationActions.NAVIGATE,
         routeName: 'C',
-      }).index
-    ).toEqual(2);
+      })
+    ).toMatchObject({ index: 2 });
 
     expect(
-      routerHelper.applyAction({ type: NavigationActions.BACK }).index
-    ).toEqual(1);
+      routerHelper.applyAction({ type: NavigationActions.BACK })
+    ).toMatchObject({ index: 1 });
 
     expect(
-      routerHelper.applyAction({ type: NavigationActions.BACK }).index
-    ).toEqual(0);
+      routerHelper.applyAction({ type: NavigationActions.BACK })
+    ).toMatchObject({ index: 0 });
 
     expect(
-      routerHelper.applyAction({ type: NavigationActions.BACK }).index
-    ).toEqual(0);
+      routerHelper.applyAction({ type: NavigationActions.BACK })
+    ).toMatchObject({ index: 0 });
   });
 
-  test('handles history backBehavior', () => {
+  test.only('handles history backBehavior', () => {
     const routerHelper = new ExampleRouterHelper({ backBehavior: 'history' });
+    expect(routerHelper.getCurrentState().routeKeyHistory).toBeUndefined();
 
     expect(
       routerHelper.applyAction({
         type: NavigationActions.NAVIGATE,
         routeName: 'B',
-      }).index
-    ).toEqual(1);
+      })
+    ).toMatchObject({ index: 1 });
 
     expect(
       routerHelper.applyAction({
         type: NavigationActions.NAVIGATE,
         routeName: 'A',
-      }).index
-    ).toEqual(0);
+      })
+    ).toMatchObject({ index: 0 });
 
     expect(
       routerHelper.applyAction({
         type: NavigationActions.NAVIGATE,
         routeName: 'C',
-      }).index
-    ).toEqual(2);
+      })
+    ).toMatchObject({ index: 2 });
 
     expect(
       routerHelper.applyAction({
         type: NavigationActions.NAVIGATE,
         routeName: 'A',
-      }).index
-    ).toEqual(0);
+      })
+    ).toMatchObject({ index: 0 });
 
     expect(
-      routerHelper.applyAction({ type: NavigationActions.BACK }).index
-    ).toEqual(2);
+      routerHelper.applyAction({ type: NavigationActions.BACK })
+    ).toMatchObject({ index: 2 });
 
     expect(
-      routerHelper.applyAction({ type: NavigationActions.BACK }).index
-    ).toEqual(1);
+      routerHelper.applyAction({ type: NavigationActions.BACK })
+    ).toMatchObject({ index: 1 });
 
     expect(
-      routerHelper.applyAction({ type: NavigationActions.BACK }).index
-    ).toEqual(1);
+      routerHelper.applyAction({ type: NavigationActions.BACK })
+    ).toMatchObject({ index: 1 });
   });
 
   test('handles nested actions', () => {
@@ -283,8 +288,11 @@ class ExampleRouterHelper {
       action,
       this._currentState
     );
+    console.debug('this._currentState', this._currentState);
     return this._currentState;
   };
+
+  getCurrentState = () => this._currentState;
 }
 
 const getExampleRouter = (config = {}) => {
