@@ -118,7 +118,8 @@ export default (routeConfigs, config = {}) => {
       isTransitioning: false,
     };
     if (backBehavior === 'history') {
-      initialState['routeKeyHistory'] = [routes[initialRouteIndex].routeName];
+      const initialKey = routes[initialRouteIndex].key;
+      initialState['routeKeyHistory'] = [initialKey];
     }
     return initialState;
   }
