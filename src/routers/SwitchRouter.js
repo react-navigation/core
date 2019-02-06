@@ -88,26 +88,42 @@ export default (routeConfigs, config = {}) => {
     };
   }
 
-  function getNextState(prevState, possibleNextState) {
-    if (!prevState) {
-      return possibleNextState;
+  function getNextState(action, prevState, possibleNextState) {
+    function updateNextStateHistory(nextState) {
+      if (backBehavior !== 'history') {
+        return nextState;
+      }
+      let nextRouteKeyHistory = prevState.routeKeyHistory;
+      if (action.type === NavigationActions.NAVIGATE) {
+        nextRouteKeyHistory = [...prevState.routeKeyHistory]; // copy
+        const keyToAdd = nextState.routes[nextState.index].key;
+        nextRouteKeyHistory = nextRouteKeyHistory.filter(k => k !== keyToAdd); // dedup
+        nextRouteKeyHistory.push(keyToAdd);
+      } else if (action.type === NavigationActions.BACK) {
+        nextRouteKeyHistory = [...prevState.routeKeyHistory]; // copy
+        nextRouteKeyHistory.pop();
+      }
+      return {
+        ...nextState,
+        routeKeyHistory: nextRouteKeyHistory,
+      };
     }
 
-    let nextState;
-    if (prevState.index !== possibleNextState.index && resetOnBlur) {
+    let nextState = possibleNextState;
+    if (
+      prevState &&
+      prevState.index !== possibleNextState.index &&
+      resetOnBlur
+    ) {
       const prevRouteName = prevState.routes[prevState.index].routeName;
       const nextRoutes = [...possibleNextState.routes];
       nextRoutes[prevState.index] = resetChildRoute(prevRouteName);
-
-      return {
+      nextState = {
         ...possibleNextState,
         routes: nextRoutes,
       };
-    } else {
-      nextState = possibleNextState;
     }
-
-    return nextState;
+    return updateNextStateHistory(nextState);
   }
 
   function getInitialState() {
@@ -170,7 +186,7 @@ export default (routeConfigs, config = {}) => {
         if (activeChildState && activeChildState !== activeChildLastState) {
           const routes = [...state.routes];
           routes[state.index] = activeChildState;
-          return getNextState(prevState, {
+          return getNextState(action, prevState, {
             ...state,
             routes,
           });
@@ -200,26 +216,6 @@ export default (routeConfigs, config = {}) => {
         } else {
           return state;
         }
-      }
-
-      function updateRouteKeyHistory(nextState) {
-        if (backBehavior !== 'history') {
-          return nextState;
-        }
-
-        let nextRouteKeyHistory = [...state.routeKeyHistory];
-        if (action.type === NavigationActions.NAVIGATE) {
-          const keyToAdd = nextState.routes[activeChildIndex].key;
-          nextRouteKeyHistory = nextRouteKeyHistory.filter(k => k !== keyToAdd); // Deduplicate
-          nextRouteKeyHistory.push(keyToAdd);
-        }
-        if (action.type === NavigationActions.BACK) {
-          nextRouteKeyHistory.pop();
-        }
-        return {
-          ...nextState,
-          routeKeyHistory: nextRouteKeyHistory,
-        };
       }
 
       let didNavigate = false;
@@ -264,7 +260,7 @@ export default (routeConfigs, config = {}) => {
               routes,
               index: activeChildIndex,
             };
-            return updateRouteKeyHistory(getNextState(prevState, nextState));
+            return getNextState(action, prevState, nextState);
           } else if (
             newChildState === childState &&
             state.index === activeChildIndex &&
@@ -288,7 +284,7 @@ export default (routeConfigs, config = {}) => {
             ...lastRoute,
             params,
           };
-          return getNextState(prevState, {
+          return getNextState(action, prevState, {
             ...state,
             routes,
           });
@@ -296,12 +292,10 @@ export default (routeConfigs, config = {}) => {
       }
 
       if (activeChildIndex !== state.index) {
-        return updateRouteKeyHistory(
-          getNextState(prevState, {
-            ...state,
-            index: activeChildIndex,
-          })
-        );
+        return getNextState(action, prevState, {
+          ...state,
+          index: activeChildIndex,
+        });
       } else if (didNavigate && !inputState) {
         return state;
       } else if (didNavigate) {
@@ -342,7 +336,7 @@ export default (routeConfigs, config = {}) => {
       }
 
       if (index !== state.index || routes !== state.routes) {
-        return getNextState(prevState, {
+        return getNextState(action, prevState, {
           ...state,
           index,
           routes,
