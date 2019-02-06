@@ -186,16 +186,17 @@ export default (routeConfigs, config = {}) => {
           activeChildIndex = initialRouteIndex;
         } else if (isBackEligible && backBehavior === 'order') {
           activeChildIndex = Math.max(0, activeChildIndex - 1);
-        } else if (isBackEligible && backBehavior === 'history') {
-          // The history contains current route, so we can only go back
-          // if there is more than one item in the history
-          if (state.routeKeyHistory.length > 1) {
-            const routeKey =
-              state.routeKeyHistory[state.routeKeyHistory.length - 2];
-            activeChildIndex = order.indexOf(routeKey);
-          } else {
-            return state;
-          }
+        }
+        // The history contains current route, so we can only go back
+        // if there is more than one item in the history
+        else if (
+          isBackEligible &&
+          backBehavior === 'history' &&
+          state.routeKeyHistory.length > 1
+        ) {
+          const routeKey =
+            state.routeKeyHistory[state.routeKeyHistory.length - 2];
+          activeChildIndex = order.indexOf(routeKey);
         } else {
           return state;
         }
