@@ -31,9 +31,9 @@ const data = [
   data.push({
     component: createSimpleTabs({
       backBehavior: backBehavior,
-      initialRouteName: 'C',
+      initialRouteName: 'C', // more easy to test initialRoute behavior
     }),
-    title: 'Tabs backBehavior=' + backBehavior,
+    title: `Tabs backBehavior=${backBehavior}`,
     routeName: `Tabs backBehavior=${backBehavior}`,
   });
 });
