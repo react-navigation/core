@@ -24,21 +24,35 @@ class Screen extends React.Component {
   }
 }
 
-export default createBottomTabNavigator(
-  {
-    A: {
-      screen: Screen,
-      params: { title: 'First One', icon: 'activity' },
+export const createSimpleTabs = (options = {}) => {
+  return createBottomTabNavigator(
+    {
+      A: {
+        screen: Screen,
+        params: { title: 'First One', icon: 'activity' },
+      },
+      B: {
+        screen: Screen,
+        params: { title: 'Second One', icon: 'aperture' },
+      },
+      C: {
+        screen: Screen,
+        params: { title: 'Third One', icon: 'anchor' },
+      },
+      D: {
+        screen: Screen,
+        params: { title: 'Fourth One', icon: 'archive' },
+      },
     },
-    B: {
-      screen: Screen,
-      params: { title: 'Second One', icon: 'aperture' },
-    },
-  },
-  {
-    tabBarOptions: {
-      activeTintColor: '#000',
-      inactiveTintColor: '#eee',
-    },
-  }
-);
+    {
+      ...options,
+      tabBarOptions: {
+        activeTintColor: '#000',
+        inactiveTintColor: '#eee',
+        ...options.tabBarOptions,
+      },
+    }
+  );
+};
+
+export default createSimpleTabs();
