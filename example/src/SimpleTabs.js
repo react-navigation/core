@@ -45,6 +45,7 @@ export const createSimpleTabs = (options = {}) => {
       },
     },
     {
+      backBehavior: 'history',
       ...options,
       tabBarOptions: {
         activeTintColor: '#000',
