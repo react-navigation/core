@@ -1,5 +1,5 @@
-import createReactContext from 'create-react-context';
+import React from 'react';
 
-const NavigationContext = createReactContext(undefined);
+const NavigationContext = React.createContext(null);
 
 export default NavigationContext;
