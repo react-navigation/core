@@ -16,15 +16,15 @@
     "hoist-non-react-statics": "^3.3.0",
     "prop-types": "^15.6.0",
     "query-string": "^6.2.0",
-    "react": "16.8.4",
-    "react-is": "^16.8.4",
+    "react": "16.8.3",
+    "react-is": "^16.8.3",
     "react-native": "https://github.com/expo/react-native/archive/sdk-32.0.0.tar.gz",
     "react-native-paper": "^2.2.8",
     "react-navigation-stack": "^1.0.7",
     "react-navigation-tabs": "^1.0.2"
   },
   "resolutions": {
-    "**/react": "16.8.4",
+    "**/react": "16.8.3",
     "**/prop-types": "15.6.2",
     "**/hoist-non-react-statics": "3.3.0"
   },
