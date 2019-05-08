@@ -59,8 +59,11 @@ class FocusTagWithNav extends React.Component {
 const FocusTag = withNavigation(FocusTagWithNav);
 
 class SampleScreen extends React.Component {
+  state = {
+    observedEvents: [],
+  };
   static navigationOptions = ({ navigation }) => ({
-    title: 'Lorem Ipsum',
+    title: navigation.state.routeName,
     headerRight: navigation.getParam('nextPage') ? (
       <Button
         title="Next"
@@ -70,13 +73,33 @@ class SampleScreen extends React.Component {
   });
 
   componentDidMount() {
-    this.props.navigation.addListener('refocus', () => {
-      if (this.props.navigation.isFocused()) {
-        this.scrollView.scrollTo({ x: 0, y: 0 });
+    const { addListener, state } = this.props.navigation;
+
+    const reportEvent = (evtName, evt) => {
+      if (evt.type === 'didBlur') {
+        alert('Reporting blur for ' + state.routeName);
       }
+      this.setState(state => ({
+        observedEvents: [...state.observedEvents, evt],
+      }));
+    };
+    this._subs = [
+      addListener('refocus', () => {
+        if (this.props.navigation.isFocused()) {
+          this.scrollView.scrollTo({ x: 0, y: 0 });
+        }
+      }),
+      addListener('willFocus', evt => reportEvent('willFocus', evt)),
+      addListener('willBlur', evt => reportEvent('willBlur', evt)),
+      addListener('didFocus', evt => reportEvent('didFocus', evt)),
+      addListener('didBlur', evt => reportEvent('didBlur', evt)),
+    ];
+  }
+  componentWillUnmount() {
+    this._subs.forEach(subscription => {
+      subscription.remove();
     });
   }
-
   render() {
     return (
       <ScrollView
@@ -114,6 +137,11 @@ class SampleScreen extends React.Component {
         >
           Back to Examples
         </Text>
+        {this.state.observedEvents.map((evt, index) => (
+          <Text key={index} style={{ color: '#444' }}>
+            {evt.type}
+          </Text>
+        ))}
       </ScrollView>
     );
   }

@@ -357,7 +357,6 @@ export default (routeConfigs, config = {}) => {
       });
 
       // Nested routers can be updated after switching children with actions such as SET_PARAMS
-      // and COMPLETE_TRANSITION.
       if (action.preserveFocus) {
         index = state.index;
       }

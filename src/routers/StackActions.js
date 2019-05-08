@@ -3,7 +3,6 @@ export const POP_TO_TOP = 'Navigation/POP_TO_TOP';
 export const PUSH = 'Navigation/PUSH';
 export const RESET = 'Navigation/RESET';
 export const REPLACE = 'Navigation/REPLACE';
-export const COMPLETE_TRANSITION = 'Navigation/COMPLETE_TRANSITION';
 
 export const pop = payload => ({
   type: POP,
@@ -28,11 +27,5 @@ export const reset = payload => ({
 
 export const replace = payload => ({
   type: REPLACE,
-  ...payload,
-});
-
-export const completeTransition = payload => ({
-  type: COMPLETE_TRANSITION,
-  preserveFocus: true,
   ...payload,
 });

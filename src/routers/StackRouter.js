@@ -64,7 +64,6 @@ export default (routeConfigs, stackConfig = {}) => {
 
       return {
         key: 'StackRouterRoot',
-        isTransitioning: false,
         index: 0,
         routes: [
           {
@@ -103,7 +102,6 @@ export default (routeConfigs, stackConfig = {}) => {
     };
     return {
       key: 'StackRouterRoot',
-      isTransitioning: false,
       index: 0,
       routes: [route],
     };
@@ -247,13 +245,7 @@ export default (routeConfigs, stackConfig = {}) => {
                 nextRouteState ? nextRouteState.key : childRoute.key,
                 nextRouteState ? nextRouteState : childRoute
               );
-              return {
-                ...newState,
-                isTransitioning:
-                  state.index !== newState.index
-                    ? action.immediate !== true
-                    : state.isTransitioning,
-              };
+              return newState;
             }
           }
         }
@@ -304,13 +296,9 @@ export default (routeConfigs, stackConfig = {}) => {
               },
             };
           }
-          // Return state with new index. Change isTransitioning only if index has changed
+          // Return state with new index
           return {
             ...state,
-            isTransitioning:
-              state.index !== lastRouteIndex
-                ? action.immediate !== true
-                : state.isTransitioning,
             index: lastRouteIndex,
             routes,
           };
@@ -340,10 +328,7 @@ export default (routeConfigs, stackConfig = {}) => {
             key: action.key || generateKey(),
           };
         }
-        return {
-          ...StateUtils.push(state, route),
-          isTransitioning: action.immediate !== true,
-        };
+        return StateUtils.push(state, route);
       } else if (
         action.type === StackActions.PUSH &&
         childRouters[action.routeName] === undefined
@@ -382,10 +367,7 @@ export default (routeConfigs, stackConfig = {}) => {
                 routeName: childRouterName,
                 key: action.key || generateKey(),
               };
-              return {
-                ...StateUtils.push(state, route),
-                isTransitioning: action.immediate !== true,
-              };
+              return StateUtils.push(state, route);
             }
           }
         }
@@ -404,7 +386,6 @@ export default (routeConfigs, stackConfig = {}) => {
         if (state.index > 0) {
           return {
             ...state,
-            isTransitioning: action.immediate !== true,
             index: 0,
             routes: [state.routes[0]],
           };
@@ -445,19 +426,6 @@ export default (routeConfigs, stackConfig = {}) => {
           };
           return { ...state, routes };
         }
-      }
-
-      // Update transitioning state
-      if (
-        action.type === StackActions.COMPLETE_TRANSITION &&
-        (action.key == null || action.key === state.key) &&
-        action.toChildKey === state.routes[state.index].key &&
-        state.isTransitioning
-      ) {
-        return {
-          ...state,
-          isTransitioning: false,
-        };
       }
 
       if (action.type === NavigationActions.SET_PARAMS) {
@@ -543,7 +511,6 @@ export default (routeConfigs, stackConfig = {}) => {
             ...state,
             routes: state.routes.slice(0, backRouteIndex),
             index: backRouteIndex - 1,
-            isTransitioning: immediate !== true,
           };
         }
       }

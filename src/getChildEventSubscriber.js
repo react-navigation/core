@@ -91,17 +91,18 @@ export default function getChildEventSubscriber(
       const lastRoute =
         lastRoutes && lastRoutes.find(route => route.key === key);
       const newRoute = routes && routes.find(route => route.key === key);
+      const isPending = !!payload.isPending;
       const childPayload = {
+        isPending,
         context: `${key}:${action.type}_${payload.context || 'Root'}`,
         state: newRoute,
         lastState: lastRoute,
         action,
         type: eventName,
       };
-      const isTransitioning = !!state && state.isTransitioning;
 
       const previouslylastFocusEvent = lastFocusEvent;
-
+      console.log('haa', action, isPending);
       if (lastFocusEvent === 'didBlur') {
         // The child is currently blurred. Look for willFocus conditions
         if (eventName === 'willFocus' && isChildFocused) {
@@ -112,14 +113,10 @@ export default function getChildEventSubscriber(
       }
       if (lastFocusEvent === 'willFocus') {
         // We are currently mid-focus. Look for didFocus conditions.
-        // If state.isTransitioning is false, this child event happens immediately after willFocus
-        if (eventName === 'didFocus' && isChildFocused && !isTransitioning) {
+        // If isPending is false, this child event happens immediately after willFocus
+        if (eventName === 'didFocus' && isChildFocused && !isPending) {
           emit((lastFocusEvent = 'didFocus'), childPayload);
-        } else if (
-          eventName === 'action' &&
-          isChildFocused &&
-          !isTransitioning
-        ) {
+        } else if (eventName === 'action' && isChildFocused && !isPending) {
           emit((lastFocusEvent = 'didFocus'), childPayload);
         }
       }
@@ -143,24 +140,16 @@ export default function getChildEventSubscriber(
 
       if (lastFocusEvent === 'willBlur') {
         // The child is mid-blur. Wait for transition to end
-        if (eventName === 'action' && !isChildFocused && !isTransitioning) {
-          // The child is done blurring because transitioning is over, or isTransitioning
+        if (eventName === 'action' && !isChildFocused && !isPending) {
+          // The child is done blurring because transitioning is over, or isPending
           // never began and didBlur fires immediately after willBlur
           emit((lastFocusEvent = 'didBlur'), childPayload);
         } else if (eventName === 'didBlur') {
           // Pass through the parent didBlur event if it happens
           emit((lastFocusEvent = 'didBlur'), childPayload);
-        } else if (
-          eventName === 'action' &&
-          isChildFocused &&
-          !isTransitioning
-        ) {
+        } else if (eventName === 'action' && isChildFocused && !isPending) {
           emit((lastFocusEvent = 'didFocus'), childPayload);
-        } else if (
-          eventName === 'action' &&
-          isChildFocused &&
-          isTransitioning
-        ) {
+        } else if (eventName === 'action' && isChildFocused && isPending) {
           emit((lastFocusEvent = 'willFocus'), childPayload);
         }
       }

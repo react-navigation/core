@@ -8,7 +8,8 @@ export default function getNavigation(
   dispatch,
   actionSubscribers,
   getScreenProps,
-  getCurrentNavigation
+  getCurrentNavigation,
+  waitForTransition
 ) {
   const actions = router.getActionCreators(state, null);
 
@@ -41,6 +42,7 @@ export default function getNavigation(
     dangerouslyGetParent: () => null,
     isFirstRouteInParent: () => true,
     _childrenNavigation: getChildrenNavigationCache(getCurrentNavigation()),
+    waitForTransition,
   };
 
   const actionCreators = {

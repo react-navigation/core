@@ -117,6 +117,7 @@ function getChildNavigation(navigation, childKey, getCurrentParentNavigation) {
       dangerouslyGetParent: getCurrentParentNavigation,
       addListener: childSubscriber.addListener,
       emit: childSubscriber.emit,
+      waitForTransition: navigation.waitForTransition,
     };
     return children[childKey];
   }

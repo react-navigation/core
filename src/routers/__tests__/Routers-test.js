@@ -354,7 +354,7 @@ it('Supports lazily-evaluated getScreen', () => {
   expect(state2).toEqual(state3);
 });
 
-it('Does not switch tab index when TabRouter child handles COMPLETE_NAVIGATION or SET_PARAMS', () => {
+it('Does not switch tab index when TabRouter child handles SET_PARAMS', () => {
   const FooStackNavigator = () => <div />;
   const BarView = () => <div />;
   FooStackNavigator.router = StackRouter({
@@ -391,14 +391,6 @@ it('Does not switch tab index when TabRouter child handles COMPLETE_NAVIGATION o
     state2
   );
 
-  const stateAfterCompleteTransition = TestRouter.getStateForAction(
-    {
-      type: StackActions.COMPLETE_TRANSITION,
-      preserveFocus: true,
-      key: state2.routes[0].key,
-    },
-    state3
-  );
   const stateAfterSetParams = TestRouter.getStateForAction(
     {
       type: NavigationActions.SET_PARAMS,
@@ -409,7 +401,6 @@ it('Does not switch tab index when TabRouter child handles COMPLETE_NAVIGATION o
     state3
   );
 
-  expect(stateAfterCompleteTransition.index).toEqual(1);
   expect(stateAfterSetParams.index).toEqual(1);
 });
 
