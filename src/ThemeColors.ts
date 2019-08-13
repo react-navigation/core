@@ -5,7 +5,6 @@ export default {
     body: '#fff',
     bodyBorder: '#a7a7aa',
     bodyContent: '#fff',
-    bodyContentBorder: '#a7a7aa',
     label: 'rgba(0, 0, 0, 0.9)',
   },
   dark: {
@@ -14,7 +13,6 @@ export default {
     body: '#000',
     bodyBorder: '#343434',
     bodyContent: '#2a2a2a',
-    bodyContentBorder: '#2a2a2a',
     label: '#fff',
   },
 };
