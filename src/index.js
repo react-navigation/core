@@ -32,6 +32,9 @@ module.exports = {
   get ThemeConsumer() {
     return require('./views/NavigationContext').default.Consumer;
   },
+  get ThemeColors() {
+    return require('./ThemeColors').default;
+  },
 
   get createSwitchNavigator() {
     return require('./navigators/createSwitchNavigator').default;
