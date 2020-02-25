@@ -1,3 +1,7 @@
+This package has been moved to https://github.com/react-navigation/react-navigation/tree/4.x/packages/core
+
+---
+
 # React Navigation Core
 
 [![npm version](https://badge.fury.io/js/%40react-navigation%2Fcore.svg)](https://badge.fury.io/js/%40react-navigation%2Fcore) [![CircleCI badge](https://circleci.com/gh/react-navigation/core/tree/master.svg?style=shield)](https://circleci.com/gh/react-navigation/core/tree/master) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://reactnavigation.org/docs/contributing.html)
